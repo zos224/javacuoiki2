@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -44,7 +45,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.Connection;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Vector;
+import java.util.jar.Attributes.Name;
 import java.awt.event.ActionEvent;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -54,7 +57,7 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
 
 	long millis = System.currentTimeMillis();
     Date time = new Date(millis);
-    JTable table;
+    static JTable table;
     JLabel timkiemlb;
     JRadioButton loc;
     JTextField timkiem;
@@ -63,7 +66,7 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
     JButton them, xoa, chinhsua, thongke, xuatdl;
     static Vector vData = new Vector();
     static Vector vTitle = new Vector<>();
-    JComboBox nam;
+    static JComboBox nam;
     TableRowSorter<DefaultTableModel> sorter;
     int selectedrow, viewrow;
 
@@ -116,39 +119,32 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
             cn.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Chức năng", TitledBorder.CENTER, TitledBorder.TOP));
             top.add(cn);
             
-            JButton reloadbt = new JButton("Reload");
             GroupLayout gl_cn = new GroupLayout(cn);
             gl_cn.setHorizontalGroup(
             	gl_cn.createParallelGroup(Alignment.LEADING)
             		.addGroup(gl_cn.createSequentialGroup()
-            			.addGap(122)
-            			.addComponent(reloadbt)
-            			.addGap(57)
+            			.addGap(117)
             			.addComponent(them, GroupLayout.PREFERRED_SIZE, 93, GroupLayout.PREFERRED_SIZE)
-            			.addGap(66)
+            			.addGap(118)
             			.addComponent(xoa, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
-            			.addGap(67)
+            			.addGap(112)
             			.addComponent(chinhsua, GroupLayout.PREFERRED_SIZE, 107, GroupLayout.PREFERRED_SIZE)
-            			.addGap(52)
+            			.addGap(89)
             			.addComponent(thongke, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
-            			.addGap(50)
+            			.addGap(98)
             			.addComponent(xuatdl, GroupLayout.PREFERRED_SIZE, 147, GroupLayout.PREFERRED_SIZE)
-            			.addGap(158))
+            			.addGap(103))
             );
             gl_cn.setVerticalGroup(
             	gl_cn.createParallelGroup(Alignment.LEADING)
             		.addGroup(gl_cn.createSequentialGroup()
             			.addGap(5)
-            			.addGroup(gl_cn.createParallelGroup(Alignment.LEADING)
-            				.addGroup(gl_cn.createParallelGroup(Alignment.BASELINE)
-            					.addComponent(them)
-            					.addComponent(reloadbt))
-            				.addGroup(gl_cn.createParallelGroup(Alignment.BASELINE)
-            					.addComponent(xuatdl)
-            					.addComponent(thongke)
-            					.addComponent(chinhsua)
-            					.addComponent(xoa)))
-            			.addGap(21))
+            			.addGroup(gl_cn.createParallelGroup(Alignment.BASELINE)
+            				.addComponent(xuatdl)
+            				.addComponent(thongke)
+            				.addComponent(chinhsua)
+            				.addComponent(xoa)
+            				.addComponent(them)))
             );
             cn.setLayout(gl_cn);
 
@@ -162,19 +158,19 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
                         @Override
                         public void insertUpdate(DocumentEvent e) {
                             table.clearSelection();
-                          
+                            Filter();
                         }
 
                         @Override
                         public void removeUpdate(DocumentEvent e) {
                             table.clearSelection();
-                            
+                            Filter();
                         }
 
                         @Override
                         public void changedUpdate(DocumentEvent e) {
                             table.clearSelection();
-                        
+                            Filter();
                         }
                     }
             );
@@ -184,7 +180,7 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
             tk.add(loc);
             nam = new JComboBox();
             nam.addItem("Theo năm");
-            
+            Client.get_year();
             nam.addItemListener(this);
             nam.setEnabled(false);
             tk.add(nam);
@@ -211,7 +207,7 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
                     if (isRowSelected(row)) {
                         c.setBackground(getSelectionBackground());
                     } else {
-                        if (table.getValueAt(row, 9) == null && table.getValueAt(row, 8) != null) {
+                        if (table.getValueAt(row, 9) == "" && table.getValueAt(row, 8) != "") {
                             c.setBackground(new Color(249, 255, 148));
                         } else {
                             c.setBackground(null);
@@ -252,25 +248,28 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
         }
 	}
 
-	public static void reload(Vector vData, Vector vTitle)
+	public static void reload(Vector Data, Vector Title)
 	{
-		MainGUI.vData = vData;
-		MainGUI.vTitle = vTitle;
-		model.fireTableDataChanged();
-	}
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		// TODO Auto-generated method stub
-		
+		if (vData.isEmpty() && vTitle.isEmpty())
+		{
+			vData = Data;
+			vTitle = Title;
+		}
+		else {
+			model.setDataVector(Data, Title);
+		}
 	}
 
+	public static void add_year(Vector<String> years)
+	{
+		for (int i = 0; i < years.size(); i++)
+		{
+			nam.addItem(years.elementAt(i));
+		}
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equals("Reload"))
-		{
-			Client.loadData();
-		}
-		else if (e.getActionCommand().equals("Xóa")) {
+		if (e.getActionCommand().equals("Xóa")) {
 			int result = JOptionPane.showConfirmDialog(this, "Bạn chắc chắn muốn xóa hồ sơ bệnh án này chứ?", "Xác nhận",
 	                JOptionPane.YES_OPTION, JOptionPane.NO_OPTION);
 	        if (result == JOptionPane.YES_OPTION) 
@@ -285,8 +284,58 @@ public class MainGUI extends JFrame implements MouseListener, ActionListener, It
 		{
 			new UpdateForm("Thêm hồ sơ bệnh án", 0, "", "", "", time, "", "", "", time, time);
 		}
+		else if (e.getActionCommand().equals("Chỉnh sửa"))
+		{
+			Vector st = (Vector) vData.elementAt(selectedrow);
+            if (!(st.elementAt(8) == "") && st.elementAt(9) == "") {
+                new UpdateForm("Chỉnh sửa hồ sơ bệnh án", Integer.parseInt((String) st.elementAt(0)), (String) st.elementAt(1), (String) st.elementAt(2),
+                        (String) st.elementAt(3), Date.valueOf((String) st.elementAt(4)), (String) st.elementAt(5), (String) st.elementAt(6),
+                        (String) st.elementAt(7), Date.valueOf((String) st.elementAt(8)), null);
+            } else if (!(st.elementAt(8) == "" && st.elementAt(9) == "")) {
+                new UpdateForm("Chỉnh sửa hồ sơ bệnh án", Integer.parseInt((String) st.elementAt(0)), (String) st.elementAt(1), (String) st.elementAt(2),
+                        (String) st.elementAt(3), Date.valueOf((String) st.elementAt(4)), (String) st.elementAt(5), (String) st.elementAt(6),
+                        (String) st.elementAt(7), Date.valueOf((String) st.elementAt(8)), Date.valueOf((String) st.elementAt(9)));
+            } else {
+                new UpdateForm("Chỉnh sửa hồ sơ bệnh án", Integer.parseInt((String) st.elementAt(0)), (String) st.elementAt(1), (String) st.elementAt(2),
+                        (String) st.elementAt(3), Date.valueOf((String) st.elementAt(4)), (String) st.elementAt(5), (String) st.elementAt(6),
+                        (String) st.elementAt(7), null, null);
+            }
+		}
+		else if (e.getActionCommand().equals("Thống kê")) {
+			new Chart();
+		}
+		else if (e.getActionCommand().equals("Xuất dữ liệu"))
+		{
+			new Export().View();
+		}
 	}
 
+	public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == 1) {
+            nam.setEnabled(true);
+            Client.loadData_dieutri();
+            int index = nam.getSelectedIndex();
+            if (index != 0) {
+                Client.load_data_dieutri_theonam((String) nam.getSelectedItem());
+            }
+        }
+        else
+        {
+            nam.setEnabled(false);
+            Client.loadData();
+        }
+        model.fireTableDataChanged();
+    }
+	
+	public void Filter() {
+        RowFilter<DefaultTableModel, Object> rf = null;
+        try {
+            rf = RowFilter.regexFilter(timkiem.getText());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        sorter.setRowFilter(rf);
+    }
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub

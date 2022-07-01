@@ -58,6 +58,83 @@ public class Client {
 			// TODO: handle exception
 		}
 	}
+	public static void update_patient(Vector vector)
+	{
+		try {
+			socketHandle.getDataOutputStream().writeUTF("update-request," + vector);
+			socketHandle.getDataOutputStream().flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public static void get_year()
+	{
+		try {
+			socketHandle.getDataOutputStream().writeUTF("get year");
+			socketHandle.getDataOutputStream().flush();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	public static void loadData_dieutri() 
+	{
+		try {
+			socketHandle.getDataOutputStream().writeUTF("load data dieutri,");
+			socketHandle.getDataOutputStream().flush();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public static void load_data_dieutri_theonam(String nam) 
+	{	
+		try {
+			socketHandle.getDataOutputStream().writeUTF("load data dieutri theonam," + nam);
+			socketHandle.getDataOutputStream().flush();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public static void load_data_month()
+	{
+		try {
+			socketHandle.getDataOutputStream().writeUTF("load data month");
+			socketHandle.getDataOutputStream().flush();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public static void load_data_year()
+	{
+		try {
+			socketHandle.getDataOutputStream().writeUTF("load data year");
+			socketHandle.getDataOutputStream().flush();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public static void get_col_name() {
+		try {
+			socketHandle.getDataOutputStream().writeUTF("load col name");
+			socketHandle.getDataOutputStream().flush();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public static void loadData_export(String sql)
+	{
+		try {
+			socketHandle.getDataOutputStream().writeUTF("load data export," + sql);
+			socketHandle.getDataOutputStream().flush();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 	public void init()                               
 	{
 		loginGUI.openGUI();

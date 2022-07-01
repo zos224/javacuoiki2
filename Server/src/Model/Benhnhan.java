@@ -19,7 +19,7 @@ public class Benhnhan {
 		this.ngaynhapvien = ngaynhapvien;
 		this.ngayravien = ngayravien;
 	}
-	public Benhnhan(int id, String hotendem, String tenbn, String diachibn, Date ngaykham, String bacsikham, String ketluan, String ppdieutri, Date ngaynhapvien, Date ngayraviene)
+	public Benhnhan(int id, String hotendem, String tenbn, String diachibn, Date ngaykham, String bacsikham, String ketluan, String ppdieutri, Date ngaynhapvien, Date ngayravien)
 	{
 		this.id = id;
 		this.hotendem = hotendem;

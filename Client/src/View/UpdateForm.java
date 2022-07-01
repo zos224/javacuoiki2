@@ -13,6 +13,7 @@ import java.awt.event.ItemListener;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,6 +25,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import com.toedter.calendar.JDateChooser;
 
+import Controller.Client;
+
 public class UpdateForm extends JFrame implements ActionListener, ItemListener{
 	private JLabel mahslb, hotendemlb, tenlb, diachilb, ngaykhamlb, bacsilb, ketluanlb, dieutrilb, ngaynhapvienlb, ngayravienlb;
     private JTextField Mahs, Hotendem, Ten, Diachi, Ngaykham, Bacsi, Ketluan;
@@ -33,7 +36,7 @@ public class UpdateForm extends JFrame implements ActionListener, ItemListener{
     private int mahs;
     private Date ngaynhapvien = null,ngayravien = null;
     private  int ssdate,checkdate;
-    public UpdateForm(String s, Integer mahs, String hotendem, String ten, String diachi, Date ngaykham, String bacsi, String ketluan, String dieutri,
+    public UpdateForm(String s, int mahs, String hotendem, String ten, String diachi, Date ngaykham, String bacsi, String ketluan, String dieutri,
                       Date ngaynhapvien, Date ngayravien) {
         super(s);
         Container p = this.getContentPane();
@@ -41,7 +44,7 @@ public class UpdateForm extends JFrame implements ActionListener, ItemListener{
         mahslb = new JLabel("Mã hồ sơ:");
         mahslb.setBounds(0, 5, 105, 41);
         p.add(mahslb);
-        Mahs = new JTextField(mahs.toString());
+        Mahs = new JTextField(mahs);
         Mahs.setBounds(133, 5, 251, 41);
         p.add(Mahs);
         Mahs.setEditable(false);
@@ -98,7 +101,6 @@ public class UpdateForm extends JFrame implements ActionListener, ItemListener{
         ngayravienlb = new JLabel("Ngày ra viện:");
         ngayravienlb.setBounds(0, 375, 105, 41);
         p.add(ngayravienlb);
-        Dieutri.setSelectedItem(dieutri);
         ok = new JButton("OK");
         ok.setBounds(0, 420, 192, 41);
         p.add(ok);
@@ -108,12 +110,17 @@ public class UpdateForm extends JFrame implements ActionListener, ItemListener{
         p.add(cancel);
         
         Ngaynhapvien = new JDateChooser();
+        Ngaynhapvien.setDateFormatString("yyyy-MM-dd");
+        Ngaynhapvien.setDate(ngaynhapvien);
         Ngaynhapvien.setBounds(133, 333, 251, 41);
         getContentPane().add(Ngaynhapvien);
         Ngaynhapvien.setEnabled(false);
-        JDateChooser Ngayravien = new JDateChooser();
+        Ngayravien = new JDateChooser();
+        Ngayravien.setDateFormatString("yyyy-MM-dd");
+        Ngayravien.setDate(ngayravien);
         Ngayravien.setBounds(133, 380, 251, 36);
         Ngayravien.setEnabled(false);
+        Dieutri.setSelectedItem(dieutri);
         getContentPane().add(Ngayravien);
         cancel.addActionListener(this);
         this.mahs = mahs;
@@ -129,10 +136,12 @@ public class UpdateForm extends JFrame implements ActionListener, ItemListener{
             ssdate = 0;
             if (Ngaynhapvien.isEnabled() && Ngayravien.isEnabled())
             {
-                ngaynhapvien = (Date) Ngaynhapvien.getDate();
-                if (!Ngayravien.getDate().equals(null))
+            	java.util.Date utilDate = Ngaynhapvien.getDate();
+                ngaynhapvien = new Date(utilDate.getTime());
+            	utilDate = Ngayravien.getDate();
+                if (!(utilDate == null))
                 {
-                    ngayravien = (Date) Ngayravien.getDate();
+                    ngayravien = new Date(utilDate.getTime());
 					ssdate = ngaynhapvien.compareTo(ngayravien);
                 }
             }
@@ -181,6 +190,25 @@ public class UpdateForm extends JFrame implements ActionListener, ItemListener{
             String bacsi = Bacsi.getText();
             String ketluan = Ketluan.getText();
             String dieutri = (String) Dieutri.getSelectedItem();
+            Vector benhnhan = new Vector<>();
+            benhnhan.add(hotendem);
+            benhnhan.add(ten);
+            benhnhan.add(diachi);
+            benhnhan.add(ngaykham);
+            benhnhan.add(bacsi);
+            benhnhan.add(ketluan);
+            benhnhan.add(dieutri);
+            benhnhan.add(ngaynhapvien);
+            benhnhan.add(ngayravien);
+            if (this.getTitle().equals("Thêm hồ sơ bệnh án"))
+            {
+            	Client.insert_patient(benhnhan);
+            }
+            else if (this.getTitle().equals("Chỉnh sửa hồ sơ bệnh án"))
+            {
+            	benhnhan.add(0, mahs);
+            	Client.update_patient(benhnhan);
+            }
         }
     }
   
